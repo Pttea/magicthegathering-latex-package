@@ -1,0 +1,633 @@
+%%
+%% magicthegathering-doc.tex  --  Documentation for the magicthegathering LaTeX package
+%%
+%% This file is both the user manual and a compilable working example.
+%% Compile with two passes for the table of contents:
+%%
+%%   lualatex --shell-escape magicthegathering-doc.tex
+%%   lualatex --shell-escape magicthegathering-doc.tex
+%%
+%% Or, if SVGs have been pre-converted to PDF:
+%%
+%%   pdflatex magicthegathering-doc.tex
+%%   pdflatex magicthegathering-doc.tex
+%%
+
+\documentclass[a4paper,11pt]{article}
+
+%% --- Layout ---------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[top=2.5cm, bottom=2.8cm, left=2.8cm, right=2.8cm,
+            headheight=15pt]{geometry}
+
+%% --- Load the package we are documenting ----------------------------------
+%%     (hyperref=false because we configure hyperref ourselves below)
+\usepackage[hyperref=false]{magicthegathering}
+
+%% --- Hyperref -------------------------------------------------------------
+\usepackage[
+  colorlinks  = true,
+  linkcolor   = black,
+  urlcolor    = blue,
+  citecolor   = black,
+  pdftitle    = {The magicthegathering package -- User Manual},
+  pdfauthor   = {Hypergeomancer},
+]{hyperref}
+
+%% --- Code listings --------------------------------------------------------
+\usepackage{listings}
+\lstdefinestyle{mtgcode}{
+  language        = [LaTeX]TeX,
+  basicstyle      = \ttfamily\small,
+  keywordstyle    = \bfseries,
+  commentstyle    = \color{gray}\itshape,
+  backgroundcolor = \color{black!3},
+  frame           = single,
+  framerule       = 0.4pt,
+  rulecolor       = \color{black!25},
+  xleftmargin     = 4pt,
+  xrightmargin    = 4pt,
+  aboveskip       = 8pt,
+  belowskip       = 4pt,
+  breaklines      = true,
+  columns         = flexible,
+  keepspaces      = true,
+  showstringspaces= false,
+  morekeywords    = {
+    mana,manacost,manaW,manaU,manaB,manaR,manaG,manaC,
+    setmanasymbolsize,setsetsymbolsize,
+    setsymbol,card,cardlink,
+    initem,outitem,matchup,
+    insertdeck,
+    matchresult,matchresults,
+  },
+}
+\lstset{style=mtgcode}
+
+%% --- Result boxes ---------------------------------------------------------
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{result}{
+  enhanced,
+  colback    = white,
+  colframe   = black!25,
+  boxrule    = 0.4pt,
+  left       = 6pt,
+  right      = 6pt,
+  top        = 5pt,
+  bottom     = 5pt,
+  fonttitle  = \bfseries\small,
+  title      = Output,
+}
+
+%% --- Section formatting ---------------------------------------------------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\large\bfseries}{\thesection}{0.7em}{}
+  [\vspace{2pt}{\color{black!40}\hrule height 0.8pt}]
+\titleformat{\subsection}
+  {\normalsize\bfseries}{\thesubsection}{0.6em}{}
+
+%% --- Header / footer ------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textsf{The \texttt{magicthegathering} package}}
+\fancyhead[R]{\small\textsf{v1.1 \,--\, \today}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%% --- Misc -----------------------------------------------------------------
+\usepackage{booktabs,array,enumitem,parskip,longtable,multicol}
+
+%% --- Doc shorthand --------------------------------------------------------
+\newcommand{\pkg}[1]{\textsf{#1}}
+\newcommand{\opt}[1]{\texttt{#1}}
+\newcommand{\env}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\cmd}[1]{\texttt{\textbackslash#1}}
+\newcommand{\meta}[1]{\textnormal{\textit{$\langle$#1$\rangle$}}}
+\newcommand{\carg}[1]{\texttt{\{}\meta{#1}\texttt{\}}}
+
+%% ==========================================================================
+%% Title
+%% ==========================================================================
+\title{%
+  {\LARGE\bfseries The \texttt{magicthegathering} package}\\[6pt]
+  {\large Magic: The Gathering typesetting for \LaTeX}\\[6pt]
+  {\normalsize v1.1 \quad\textbullet\quad 2026-03-21}%
+}
+\author{Hypergeomancer}
+\date{}
+
+%% ==========================================================================
+\begin{document}
+%% ==========================================================================
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}\noindent
+The \pkg{magicthegathering} package provides \LaTeX{} commands for typesetting
+\emph{Magic:~The~Gathering} content: inline mana symbols,
+expansion-set icons, Scryfall-linked card names, sideboard-guide
+tables, plain-text deck-list import, and tournament match-result
+tracking.  Every code listing in this document is a live,
+compilable example.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%% ==========================================================================
+\section{Feature overview}
+\label{sec:features}
+%% ==========================================================================
+
+\begin{center}
+\begin{tabular}{@{} c l l @{}}
+  \toprule
+  \textbf{\#} & \textbf{Feature} & \textbf{Primary command(s)} \\
+  \midrule
+  1 & Mana symbols           & \cmd{mana}\carg{id} \\
+  2 & Full mana costs        & \cmd{manacost}\carg{id id \ldots} \\
+  3 & Colour shortcuts       & \cmd{manaW} \ldots\ \cmd{manaC} \\
+  4 & Set symbols            & \cmd{setsymbol}\carg{code} \\
+  5 & Card hyperlinks        & \cmd{card}\carg{name} \\
+  6 & Custom-text card links & \cmd{cardlink}\carg{name}\carg{text} \\
+  7 & Sideboard guide        & \env{matchup} environment \\
+  8 & Deck-list import       & \cmd{insertdeck}\carg{file} \\
+  9 & Match results          & \env{matchresults} environment \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+%% ==========================================================================
+\section{Requirements}
+%% ==========================================================================
+
+\paragraph{TeX distribution.}
+TeX~Live~2020+ or MiK\TeX~21+.
+Dependencies: \pkg{pgfopts}, \pkg{svg}, \pkg{booktabs}, \pkg{array},
+\pkg{multicol}, \pkg{enumitem}, \pkg{xcolor}, \pkg{xparse},
+\pkg{expl3}, \pkg{hyperref}.
+All of these ship with standard distributions.
+
+\paragraph{SVG rendering.}
+The package uses \pkg{svg}, which delegates SVG-to-PDF conversion to Inkscape.  Two workflows:
+\begin{enumerate}[itemsep=2pt]
+  \item \textbf{Live SVG} (Inkscape required):
+        compile with \texttt{lualatex -{}-shell-escape}.
+  \item \textbf{Pre-converted PDF} (no Inkscape):
+        convert all SVGs to PDF beforehand;
+        the package auto-detects \file{.pdf} files.
+\end{enumerate}
+
+%% ==========================================================================
+\section{Installation}
+%% ==========================================================================
+
+Copy the following tree into any texmf directory:
+
+\begin{lstlisting}[language={},basicstyle=\ttfamily\small]
+<texmf>/tex/latex/magicthegathering/
+    magicthegathering.sty
+    symbols/   <-- mtg-sym-*.pdf / mtg-sym-*.svg
+    sets/      <-- mtg-set-*.pdf / mtg-set-*.svg
+\end{lstlisting}
+
+Then run \texttt{texhash} (TeX~Live) or
+\texttt{initexmf -{}-update-fndb} (MiK\TeX).
+
+%% ==========================================================================
+\section{Package options}
+\label{sec:options}
+%% ==========================================================================
+
+\begin{lstlisting}
+\usepackage[<options>]{magicthegathering}
+\end{lstlisting}
+
+\medskip
+\begin{center}
+\begin{tabular}{@{} l l p{6.8cm} @{}}
+  \toprule
+  \textbf{Option} & \textbf{Default} & \textbf{Description} \\
+  \midrule
+  \opt{hyperref}    & \opt{true}    & Load \pkg{hyperref}.
+      Set \opt{false} if your document loads it first. \\[3pt]
+  \opt{colorlinks}  & \opt{true}    & Colour hyperlinks. \\[3pt]
+  \opt{activelinks} & \opt{true}    & Enable Scryfall links in
+      \cmd{card} and \cmd{cardlink}.  When \opt{false},
+      these commands produce plain italic text
+      with no hyperlink. \\[3pt]
+  \opt{symbolpath}  & \opt{symbols} & Directory for
+      mana-symbol files. \\[3pt]
+  \opt{setpath}     & \opt{sets}    & Directory for
+      set-symbol files. \\[3pt]
+  \opt{symbolprefix} & \opt{mtg-sym-} & Filename prefix for
+      mana-symbol files. \\[3pt]
+  \opt{setprefix}    & \opt{mtg-set-} & Filename prefix for
+      set-symbol files. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\medskip\noindent Example:
+\begin{lstlisting}
+\usepackage[hyperref=false, symbolpath=img/symbols]{magicthegathering}
+\end{lstlisting}
+
+%% ==========================================================================
+\section{Feature 1 -- Mana symbols}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\mana{<id>}                        % single symbol
+\setmanasymbolsize{<dimension>}    % default: 0.8em
+\end{lstlisting}
+
+The command \cmd{mana} inserts the symbol whose filename (without extension)
+matches \meta{id} from the \opt{symbolpath} directory.
+
+\subsection{Example}
+
+\begin{lstlisting}
+\mana{W} \mana{U} \mana{B} \mana{R} \mana{G} \mana{C}
+\mana{3} \mana{X} \mana{S}
+\mana{BG} \mana{UR} \mana{WU}
+\mana{2W} \mana{BP} \mana{WUP}
+\end{lstlisting}
+\begin{result}
+\mana{W}~\mana{U}~\mana{B}~\mana{R}~\mana{G}~\mana{C}~%
+\mana{3}~\mana{X}~\mana{S}~%
+\mana{BG}~\mana{UR}~\mana{WU}~%
+\mana{2W}~\mana{BP}~\mana{WUP}
+\end{result}
+
+\subsection{Available identifiers}
+
+\begin{center}
+\begin{tabular}{@{} l p{8.5cm} @{}}
+  \toprule
+  \textbf{Category} & \textbf{IDs} \\
+  \midrule
+  Generic / colourless
+    & \texttt{0}--\texttt{20}, \texttt{X}, \texttt{C},
+      \texttt{S} \\
+  Colours
+    & \texttt{W}, \texttt{U}, \texttt{B}, \texttt{R},
+      \texttt{G} \\
+  Phyrexian
+    & \texttt{WP}, \texttt{UP}, \texttt{BP}, \texttt{RP},
+      \texttt{GP} \\
+  Two-colour hybrid
+    & \texttt{WU}, \texttt{WB}, \texttt{UB}, \texttt{UR},
+      \texttt{BR}, \texttt{BG}, \texttt{RG}, \texttt{RW},
+      \texttt{GW}, \texttt{GU} \\
+  Hybrid Phyrexian
+    & \texttt{WUP}, \texttt{WBP}, \texttt{UBP},
+      \texttt{URP}, \texttt{BRP}, \texttt{BGP},
+      \texttt{RGP}, \texttt{RWP}, \texttt{GWP},
+      \texttt{GUP} \\
+  Hybrid generic
+    & \texttt{2W}, \texttt{2U}, \texttt{2B}, \texttt{2R},
+      \texttt{2G} \\
+  Colourless hybrid
+    & \texttt{CW}, \texttt{CU}, \texttt{CB}, \texttt{CR},
+      \texttt{CG} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\medskip\noindent
+\textbf{Note on symbol updates.}
+The mana and set symbol artwork bundled with this package was last
+updated in December~2025.  Symbols for sets released after that
+date may not be included.  Updated artwork will be provided in
+future package releases.
+
+%% ==========================================================================
+\section{Feature 2 -- Full mana costs}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\manacost{<id> <id> ...}
+\end{lstlisting}
+
+A space-separated list of symbol IDs.
+Each token is passed to \cmd{mana} internally.
+
+\subsection{Example}
+
+\begin{lstlisting}
+Lightning Bolt: \manacost{R}
+Counterspell:   \manacost{U U}
+Cryptic Command:\manacost{1 U U U}
+\end{lstlisting}
+\begin{result}
+Lightning Bolt: \manacost{R}\quad
+Counterspell: \manacost{U U}\quad
+Cryptic Command: \manacost{1 U U U}
+\end{result}
+
+%% ==========================================================================
+\section{Feature 3 -- Colour shortcuts}
+%% ==========================================================================
+
+Six convenience commands for the most common single-colour symbols.
+
+\medskip
+\begin{center}
+\begin{tabular}{@{} l l l @{}}
+  \toprule
+  \textbf{Command} & \textbf{Output} & \textbf{Equivalent} \\
+  \midrule
+  \cmd{manaW} & \manaW & \lstinline|\mana{W}| \\
+  \cmd{manaU} & \manaU & \lstinline|\mana{U}| \\
+  \cmd{manaB} & \manaB & \lstinline|\mana{B}| \\
+  \cmd{manaR} & \manaR & \lstinline|\mana{R}| \\
+  \cmd{manaG} & \manaG & \lstinline|\mana{G}| \\
+  \cmd{manaC} & \manaC & \lstinline|\mana{C}| \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+%% ==========================================================================
+\section{Feature 4 -- Set symbols}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\setsymbol{<set-code>}
+\setsetsymbolsize{<dimension>}     % default: 1em
+\end{lstlisting}
+
+The \meta{set-code} is the lowercase Scryfall / MTGJSON set
+identifier (e.g.\ \texttt{mh3}, \texttt{fdn}, \texttt{lea}).
+
+\subsection{Example}
+
+\begin{lstlisting}
+Modern Horizons 3: \setsymbol{mh3}
+Foundations:       \setsymbol{fdn}
+Alpha:             \setsymbol{lea}
+\end{lstlisting}
+\begin{result}
+Modern Horizons~3: \setsymbol{mh3}\quad
+Foundations: \setsymbol{fdn}\quad
+Alpha: \setsymbol{lea}
+\end{result}
+
+%% ==========================================================================
+\section{Feature 5 -- Card hyperlinks}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\card{<card name>}
+\end{lstlisting}
+
+Typesets \meta{card name} in \textit{italics} and makes it a
+clickable link to the Scryfall search page for that card.
+Requires \pkg{hyperref} (loaded by default).
+
+\subsection{Example}
+
+\begin{lstlisting}
+\card{Lightning Bolt} has been a staple since Alpha.
+\card{Tarmogoyf} defined Modern for years.
+\end{lstlisting}
+\begin{result}
+\card{Lightning Bolt} has been a staple since Alpha.\\
+\card{Tarmogoyf} defined Modern for years.
+\end{result}
+
+%% ==========================================================================
+\section{Feature 6 -- Card links with custom text}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\cardlink{<card name>}{<display text>}
+\end{lstlisting}
+
+Like \cmd{card}, but shows \meta{display text} instead of
+the card name.
+
+\subsection{Example}
+
+\begin{lstlisting}
+\cardlink{Lightning Bolt}{This iconic spell} costs
+\manacost{R}.
+\end{lstlisting}
+\begin{result}
+\cardlink{Lightning Bolt}{This iconic spell} costs \manacost{R}.
+\end{result}
+
+%% ==========================================================================
+\section{Feature 7 -- Sideboard guide}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\begin{matchup}
+  \initem{<entry>}     % IN column
+  \outitem{<entry>}    % OUT column
+\end{matchup}
+\end{lstlisting}
+
+Produces a centred IN\,/\,OUT table.  Entries are sorted
+alphabetically within each column.  The shorter column is
+padded automatically.  Any content is accepted as
+\meta{entry}\,---\,plain text, \cmd{card} links, etc.
+
+\subsection{Example}
+
+\begin{lstlisting}
+\begin{matchup}
+  \initem{\card{Leyline of Sanctity}}
+  \initem{\card{Roiling Vortex}}
+  \initem{\card{Skullcrack}}
+  \outitem{\card{Eidolon of the Great Revel}}
+  \outitem{\card{Searing Blaze}}
+\end{matchup}
+\end{lstlisting}
+\begin{result}
+\begin{matchup}
+  \initem{\card{Leyline of Sanctity}}
+  \initem{\card{Roiling Vortex}}
+  \initem{\card{Skullcrack}}
+  \outitem{\card{Eidolon of the Great Revel}}
+  \outitem{\card{Searing Blaze}}
+\end{matchup}
+\end{result}
+
+%% ==========================================================================
+\section{Feature 8 -- Deck-list import}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\insertdeck{<filename>}
+\end{lstlisting}
+
+Reads a plain-text file and renders a two-column deck list
+with Scryfall-linked card names and automatic totals.
+
+\subsection{File format}
+
+\begin{lstlisting}[language={},basicstyle=\ttfamily\small]
+4 Lightning Bolt
+4 Goblin Guide
+4 Monastery Swiftspear
+...
+SIDEBOARD
+3 Leyline of Sanctity
+2 Skullcrack
+\end{lstlisting}
+
+One card per line: \texttt{\meta{qty}~\meta{card name}}.
+The literal line \texttt{SIDEBOARD} (uppercase, no leading
+whitespace) separates main deck from sideboard.
+Blank lines are ignored.  The sideboard separator is
+optional; omitting it treats all entries as main-deck cards.
+
+\subsection{Example}
+
+\begin{lstlisting}
+\insertdeck{deck-sample.txt}
+\end{lstlisting}
+
+\insertdeck{deck-sample.txt}
+
+%% ==========================================================================
+\section{Feature 9 -- Match results}
+%% ==========================================================================
+
+\subsection{Syntax}
+
+\begin{lstlisting}
+\begin{matchresults}
+  \matchresult{<round>}{<opponent>}{<deck>}{<score>}{<result>}
+  ...
+\end{matchresults}
+\end{lstlisting}
+
+The \meta{result} argument must be exactly \texttt{Win},
+\texttt{Loss}, or \texttt{Draw} (case-sensitive).  The
+win--loss--draw record is computed automatically.
+
+\subsection{Example}
+
+\begin{lstlisting}
+\begin{matchresults}
+  \matchresult{1}{Alice}{Amulet Titan}{2--1}{Win}
+  \matchresult{2}{Bob}{Living End}{0--2}{Loss}
+  \matchresult{3}{Carol}{Yawgmoth}{2--1}{Win}
+  \matchresult{4}{Dave}{Burn}{2--0}{Win}
+  \matchresult{5}{Eve}{Cascade Crash}{1--1}{Draw}
+\end{matchresults}
+\end{lstlisting}
+\begin{result}
+\begin{matchresults}
+  \matchresult{1}{Alice}{Amulet Titan}{2--1}{Win}
+  \matchresult{2}{Bob}{Living End}{0--2}{Loss}
+  \matchresult{3}{Carol}{Yawgmoth}{2--1}{Win}
+  \matchresult{4}{Dave}{Burn}{2--0}{Win}
+  \matchresult{5}{Eve}{Cascade Crash}{1--1}{Draw}
+\end{matchresults}
+\end{result}
+
+%% ==========================================================================
+\section{Quick-reference table}
+%% ==========================================================================
+
+\begin{longtable}{@{} p{5.8cm} p{7.5cm} @{}}
+  \toprule
+  \textbf{Command / environment}
+    & \textbf{Description} \\
+  \midrule\endhead
+  \bottomrule\endfoot
+  \cmd{setmanasymbolsize}\carg{dim}
+    & Set mana-symbol height (default 0.8em). \\
+  \cmd{mana}\carg{id}
+    & Single mana symbol. \\
+  \cmd{manacost}\carg{id id \ldots}
+    & Full mana cost (space-separated). \\
+  \cmd{manaW}\,\ldots\,\cmd{manaC}
+    & Colour shortcuts. \\[3pt]
+  \cmd{setsetsymbolsize}\carg{dim}
+    & Set-symbol height (default 1em). \\
+  \cmd{setsymbol}\carg{code}
+    & Expansion symbol. \\[3pt]
+  \cmd{card}\carg{name}
+    & Italic card name with Scryfall link. \\
+  \cmd{cardlink}\carg{name}\carg{text}
+    & Custom text with Scryfall link. \\[3pt]
+  \env{matchup}
+    & IN\,/\,OUT sideboard table. \\
+  \quad\cmd{initem}\carg{entry}
+    & Add to IN column. \\
+  \quad\cmd{outitem}\carg{entry}
+    & Add to OUT column. \\[3pt]
+  \cmd{insertdeck}\carg{file}
+    & Import deck list from text file. \\[3pt]
+  \env{matchresults}
+    & Tournament results table. \\
+  \cmd{matchresult}\carg{rd}\carg{opp}\\%
+  \carg{deck}\carg{score}\carg{result}
+    & Add one match row. \\
+\end{longtable}
+
+%% ==========================================================================
+\section{Licence}
+%% ==========================================================================
+
+This work is released under the
+\href{https://www.latex-project.org/lppl/lppl-1-3c/}%
+{LaTeX Project Public Licence v1.3c} or later.
+
+The SVG artwork in \file{symbols/} and \file{sets/} is from
+the \href{https://mana.andrewgioia.com}{Mana} and
+\href{https://keyrune.andrewgioia.com}{Keyrune} projects by
+Andrew~Gioia, released under the SIL Open Font Licence~1.1.
+
+Magic:~The~Gathering, the mana symbols, the tap symbol, the set
+symbols, and all associated card names and game elements are
+trademarks and/or copyrighted materials of Wizards of the
+Coast~LLC and/or its affiliates.  All rights in such materials
+are reserved by Wizards of the~Coast.  This package is an
+unofficial fan project and is not produced, endorsed, supported,
+or affiliated with Wizards of the~Coast.
+
+%% ==========================================================================
+\section{Version history}
+%% ==========================================================================
+
+\begin{description}[font=\normalfont\ttfamily\bfseries,
+                     itemsep=4pt]
+  \item[v1.1 (2026-03-21)]
+    Renamed all symbol and set files with unique prefixes
+    (\file{mtg-sym-*}, \file{mtg-set-*}) for TeX~Live
+    compatibility.  Added \opt{symbolprefix} and
+    \opt{setprefix} package options.
+    No changes to user-facing commands.
+  \item[v1.0 (2026-03-15)]
+    First public release.  Nine features: mana symbols, full
+    mana costs, colour shortcuts, set symbols, card hyperlinks,
+    custom-text card links, sideboard guide, deck-list import,
+    match results.
+\end{description}
+
+\end{document}
