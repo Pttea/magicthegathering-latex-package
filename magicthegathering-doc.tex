@@ -94,7 +94,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\textsf{The \texttt{magicthegathering} package}}
-\fancyhead[R]{\small\textsf{v1.1 \,--\, \today}}
+\fancyhead[R]{\small\textsf{v1.2 \,--\, \today}}
 \fancyfoot[C]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -116,9 +116,13 @@
 \title{%
   {\LARGE\bfseries The \texttt{magicthegathering} package}\\[6pt]
   {\large Magic: The Gathering typesetting for \LaTeX}\\[6pt]
-  {\normalsize v1.1 \quad\textbullet\quad 2026-03-21}%
+  {\normalsize v1.2 \quad\textbullet\quad 2026-09-04}%
 }
 \author{Hypergeomancer}
+\author{
+    Hypergeomancer\\[0.5em]
+    \small Maybeboard support contributed by Pttea
+}
 \date{}
 
 %% ==========================================================================
@@ -638,12 +642,24 @@ or affiliated with Wizards of the~Coast.
 
 \begin{description}[font=\normalfont\ttfamily\bfseries,
                      itemsep=4pt]
+  \item[v1.2 (2026-09-04)]
+    Added optional Maybeboard support to deck-list import,
+    contributed by Pttea.
+    Deck lists may now include a \texttt{MAYBEBOARD} section,
+    which is rendered in a third independent column alongside
+    the Maindeck and Sideboard.  Added \pkg{paracol} support so
+    long Maybeboards continue within their own column across
+    pages.  Blank and whitespace-only lines in imported deck
+    lists are now ignored.  Existing deck lists without a
+    Maybeboard retain the original two-column layout.
+
   \item[v1.1 (2026-03-21)]
     Renamed all symbol and set files with unique prefixes
     (\file{mtg-sym-*}, \file{mtg-set-*}) for TeX~Live
     compatibility.  Added \opt{symbolprefix} and
     \opt{setprefix} package options.
     No changes to user-facing commands.
+
   \item[v1.0 (2026-03-15)]
     First public release.  Nine features: mana symbols, full
     mana costs, colour shortcuts, set symbols, card hyperlinks,
