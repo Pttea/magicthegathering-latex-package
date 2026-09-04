@@ -170,7 +170,7 @@ compilable example.
 \paragraph{TeX distribution.}
 TeX~Live~2020+ or MiK\TeX~21+.
 Dependencies: \pkg{pgfopts}, \pkg{svg}, \pkg{booktabs}, \pkg{array},
-\pkg{multicol}, \pkg{enumitem}, \pkg{xcolor}, \pkg{xparse},
+\pkg{multicol}, \pkg{paracol} \pkg{enumitem}, \pkg{xcolor}, \pkg{xparse},
 \pkg{expl3}, \pkg{hyperref}.
 All of these ship with standard distributions.
 
@@ -482,26 +482,47 @@ padded automatically.  Any content is accepted as
 \insertdeck{<filename>}
 \end{lstlisting}
 
-Reads a plain-text file and renders a two-column deck list
-with Scryfall-linked card names and automatic totals.
+Reads a plain-text file and renders a deck list with
+Scryfall-linked card names and automatic totals.
+
+By default, the deck list is rendered in two columns for the
+main deck and sideboard. If a Maybeboard is present, a third
+independent column is added for the Maybeboard.
 
 \subsection{File format}
 
 \begin{lstlisting}[language={},basicstyle=\ttfamily\small]
+
 4 Lightning Bolt
 4 Goblin Guide
 4 Monastery Swiftspear
 ...
+
 SIDEBOARD
+
 3 Leyline of Sanctity
 2 Skullcrack
+
+MAYBEBOARD
+
+1 Smash to Smithereens
+1 Searing Blood
+
 \end{lstlisting}
 
 One card per line: \texttt{\meta{qty}~\meta{card name}}.
-The literal line \texttt{SIDEBOARD} (uppercase, no leading
-whitespace) separates main deck from sideboard.
-Blank lines are ignored.  The sideboard separator is
-optional; omitting it treats all entries as main-deck cards.
+
+The literal line \texttt{SIDEBOARD} separates the main deck
+from the sideboard. The literal line \texttt{MAYBEBOARD}
+separates the Maybeboard from the preceding section.
+
+Both separators are optional. If no \texttt{MAYBEBOARD}
+section is present, the original two-column Maindeck and
+Sideboard layout is retained. If a Maybeboard is present,
+Maindeck, Sideboard, and Maybeboard are displayed in three
+independent columns.
+
+Blank lines are ignored.
 
 \subsection{Example}
 

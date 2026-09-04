@@ -13,6 +13,7 @@
 4 Sacred Foundry
 2 Sunbaked Canyon
 10 Mountain
+
 SIDEBOARD
 3 Leyline of Sanctity
 2 Skullcrack
@@ -20,3 +21,8 @@ SIDEBOARD
 2 Exquisite Firecraft
 3 Destructive Revelry
 3 Path to Exile
+
+MAYBEBOARD
+1 Smash to Smithereens
+1 Searing Blood
+1 Deflecting Palm
